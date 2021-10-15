@@ -1,9 +1,21 @@
 import * as cdk from '@aws-cdk/core';
+import { ResourceName } from './resourceName';
 
 export class MyTodoListStack extends cdk.Stack {
-  constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
+  constructor(
+    scope: cdk.Construct,
+    resourceName: ResourceName,
+    props?: cdk.StackProps
+  ) {
+    const id = resourceName.stackName('App');
     super(scope, id, props);
 
-    // The code that defines your stack goes here
+    // Lambda
+
+    // Dynamo DB
+
+    // API Gateway
+
+    // Cognito
   }
 }
