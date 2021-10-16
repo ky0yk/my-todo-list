@@ -23,6 +23,14 @@ export class ResourceName {
     return this.basicName(`${name}-table`);
   }
 
+  public userPoolName(name: string): string {
+    return this.basicName(`${name}-user-pool`);
+  }
+
+  public userPoolClientName(name: string): string {
+    return this.basicName(`${name}-user-pool-client`);
+  }
+
   public stackName(name: string): string {
     return this.basicName(`${name}-stack`);
   }

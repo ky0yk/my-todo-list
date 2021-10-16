@@ -1,12 +1,12 @@
 import * as cdk from '@aws-cdk/core';
 import * as apigw from '@aws-cdk/aws-apigatewayv2';
-import * as cognito from '@aws-cdk/aws-cognito';
-import * as dynamodb from '@aws-cdk/aws-dynamodb';
-import { ResourceName } from './resourceName';
-import { NodejsFunction } from '@aws-cdk/aws-lambda-nodejs';
 import { HttpApi } from '@aws-cdk/aws-apigatewayv2';
 import { LambdaProxyIntegration } from '@aws-cdk/aws-apigatewayv2-integrations';
 import { HttpUserPoolAuthorizer } from '@aws-cdk/aws-apigatewayv2-authorizers';
+import * as cognito from '@aws-cdk/aws-cognito';
+import * as dynamodb from '@aws-cdk/aws-dynamodb';
+import { NodejsFunction } from '@aws-cdk/aws-lambda-nodejs';
+import { ResourceName } from './resourceName';
 
 export class MyTodoListStack extends cdk.Stack {
   constructor(
@@ -18,26 +18,27 @@ export class MyTodoListStack extends cdk.Stack {
     super(scope, id, props);
 
     // Dynamo DB
-    const todoTableName = resourceName.dynamodbName('todo');
-    const todoTable = new dynamodb.Table(this, todoTableName, {
-      tableName: todoTableName,
+    const tableName = resourceName.dynamodbName('todo');
+    const table = new dynamodb.Table(this, tableName, {
+      tableName: tableName,
       partitionKey: { name: 'userId', type: dynamodb.AttributeType.STRING },
       sortKey: { name: 'todoId', type: dynamodb.AttributeType.STRING },
     });
 
     // Lambda
-    const todoFunctionName = resourceName.lambdaName('todo');
-    const todoFunction = new NodejsFunction(this, todoFunctionName, {
-      functionName: todoFunctionName,
+    const handlerName = resourceName.lambdaName('todo');
+    const handler = new NodejsFunction(this, handlerName, {
+      functionName: handlerName,
       entry: 'src/lambda/handlers/index.ts',
       environment: {
-        TABLE_NAME: todoTableName,
+        TABLE_NAME: tableName,
       },
     });
 
-    todoTable.grantReadWriteData(todoFunction);
+    table.grantReadWriteData(handler);
 
     // Cognito
+    const userPoolName = resourceName.userPoolName('todo');
     const userPool = new cognito.UserPool(this, 'todoUserPool', {
       userPoolName: 'todoUserPool',
       selfSignUpEnabled: true,
@@ -51,8 +52,9 @@ export class MyTodoListStack extends cdk.Stack {
       removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
 
-    const userPoolClient = userPool.addClient('client', {
-      userPoolClientName: 'cognito-cli',
+    const userPoolClientName = resourceName.userPoolClientName('todo');
+    const userPoolClient = userPool.addClient(userPoolClientName, {
+      userPoolClientName: userPoolClientName,
       generateSecret: false,
       authFlows: {
         adminUserPassword: true,
@@ -67,14 +69,22 @@ export class MyTodoListStack extends cdk.Stack {
       userPoolClient: userPoolClient,
     });
 
-    const httpApi = new HttpApi(this, 'api', {
-      apiName: 'todo-api',
+    const httpApiName = resourceName.apiName('todo');
+    const httpApi = new HttpApi(this, httpApiName, {
+      apiName: httpApiName,
       defaultAuthorizer: authorizer,
     });
     httpApi.addRoutes({
       methods: [apigw.HttpMethod.ANY],
       path: '/todo',
-      integration: new LambdaProxyIntegration({ handler: todoFunction }),
+      integration: new LambdaProxyIntegration({ handler: handler }),
     });
+
+    // Cfn Output
+    new cdk.CfnOutput(this, 'userPoolId', { value: userPool.userPoolId });
+    new cdk.CfnOutput(this, 'userPoolClientId', {
+      value: userPoolClient.userPoolClientId,
+    });
+    new cdk.CfnOutput(this, 'OutputApiUrl', { value: httpApi.url! });
   }
 }
