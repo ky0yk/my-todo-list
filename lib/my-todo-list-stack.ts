@@ -1,8 +1,12 @@
 import * as cdk from '@aws-cdk/core';
+import * as apigw from '@aws-cdk/aws-apigatewayv2';
+import * as cognito from '@aws-cdk/aws-cognito';
+import * as dynamodb from '@aws-cdk/aws-dynamodb';
 import { ResourceName } from './resourceName';
 import { NodejsFunction } from '@aws-cdk/aws-lambda-nodejs';
-import * as dynamodb from '@aws-cdk/aws-dynamodb';
-import * as cognito from '@aws-cdk/aws-cognito';
+import { HttpApi } from '@aws-cdk/aws-apigatewayv2';
+import { LambdaProxyIntegration } from '@aws-cdk/aws-apigatewayv2-integrations';
+import { HttpUserPoolAuthorizer } from '@aws-cdk/aws-apigatewayv2-authorizers';
 
 export class MyTodoListStack extends cdk.Stack {
   constructor(
@@ -57,5 +61,20 @@ export class MyTodoListStack extends cdk.Stack {
     });
 
     // API Gateway
+    const authorizer = new HttpUserPoolAuthorizer({
+      authorizerName: 'cognito-authorizer',
+      userPool: userPool,
+      userPoolClient: userPoolClient,
+    });
+
+    const httpApi = new HttpApi(this, 'api', {
+      apiName: 'todo-api',
+      defaultAuthorizer: authorizer,
+    });
+    httpApi.addRoutes({
+      methods: [apigw.HttpMethod.ANY],
+      path: '/todo',
+      integration: new LambdaProxyIntegration({ handler: todoFunction }),
+    });
   }
 }
