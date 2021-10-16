@@ -2,6 +2,7 @@ import * as cdk from '@aws-cdk/core';
 import { ResourceName } from './resourceName';
 import { NodejsFunction } from '@aws-cdk/aws-lambda-nodejs';
 import * as dynamodb from '@aws-cdk/aws-dynamodb';
+import * as cognito from '@aws-cdk/aws-cognito';
 
 export class MyTodoListStack extends cdk.Stack {
   constructor(
@@ -32,8 +33,29 @@ export class MyTodoListStack extends cdk.Stack {
 
     todoTable.grantReadWriteData(todoFunction);
 
-    // API Gateway
-
     // Cognito
+    const userPool = new cognito.UserPool(this, 'todoUserPool', {
+      userPoolName: 'todoUserPool',
+      selfSignUpEnabled: true,
+      standardAttributes: {
+        email: { required: true, mutable: true },
+      },
+      signInCaseSensitive: false,
+      autoVerify: { email: true },
+      signInAliases: { email: true },
+      accountRecovery: cognito.AccountRecovery.EMAIL_ONLY,
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+    });
+
+    const userPoolClient = userPool.addClient('client', {
+      userPoolClientName: 'cognito-cli',
+      generateSecret: false,
+      authFlows: {
+        adminUserPassword: true,
+      },
+      preventUserExistenceErrors: true,
+    });
+
+    // API Gateway
   }
 }
