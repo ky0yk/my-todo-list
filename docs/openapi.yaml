@@ -1,0 +1,216 @@
+openapi: 3.0.3
+info:
+  title: TODO API overview
+  version: 1.0.0
+servers:
+  - url: "https://xxxx.execute-api.ap-northeast-1.amazonaws.com/" # fix
+components:
+  securitySchemes:
+    OAuth2:
+      type: oauth2
+      description: "For more information, see https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-userpools-server-contract-reference.html"
+      flows:
+        authorizationCode:
+          authorizationUrl: "https://xxxx.auth.ap-northeast-1.amazoncognito.com/oauth2/authorize" # fix
+          tokenUrl: "https://xxxx.auth.ap-northeast-1.amazoncognito.com/oauth2/token" # fix
+          scopes:
+            openid: openid token
+  schemas:
+    TaskInfoResponse:
+      description: タスク情報
+      type: object
+      x-examples: {}
+      properties:
+        userId:
+          type: string
+          format: uuid
+        taskId:
+          type: string
+          format: uuid
+        complete:
+          type: boolean
+        taskTittle:
+          type: string
+          minLength: 1
+        taskBody:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+security:
+  - OAuth2:
+      - openid
+      - token
+paths:
+  /tasks:
+    get:
+      summary: タスクの一覧を取得
+      operationId: getTasks
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TaskInfoResponse"
+              examples:
+                example:
+                  value:
+                    - userId: 2c4a230c-5085-4924-a3e1-25fb4fc5965b
+                      taskId: e6e9d88a-9b63-468a-aec3-b7a11de27af8
+                      complete: false
+                      taskTittle: コーヒー豆を買う
+                      taskBody: いつものコーヒーショップでブレンドを100g
+                      createdAt: "2019-08-24T14:15:22Z"
+                      updatedAt: "2019-10-14T13:21:45Z"
+                    - userId: dd293586-db5d-b62d-79e1-1af0d61bbc36
+                      taskId: 81bcf5bc-7afc-aa06-a860-622222df84f3
+                      complete: true
+                      taskTittle: ドーナッツを買う
+                      taskBody: 駅ナカのドーナッツショップでオールドファッションを3つ
+                      createdAt: "2019-08-23T11:32:11Z"
+                      updatedAt: "2019-08-24T14:15:22Z"
+        "400":
+          description: Bad Request
+    post:
+      summary: タスクを登録
+      operationId: postTasks
+      requestBody:
+        content:
+          application/json:
+            schema:
+              description: ""
+              type: object
+              x-examples:
+                example-1:
+                  taskTittle: string
+                  taskBody: string
+              properties:
+                taskTittle:
+                  type: string
+                  minLength: 1
+                taskBody:
+                  type: string
+              required:
+                - taskTittle
+            examples:
+              example:
+                value:
+                  taskTittle: コーヒー豆を買う
+                  taskBody: いつものコーヒーショップでブレンドを100g
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TaskInfoResponse"
+              examples:
+                example:
+                  value:
+                    userId: 2c4a230c-5085-4924-a3e1-25fb4fc5965b
+                    taskId: e6e9d88a-9b63-468a-aec3-b7a11de27af8
+                    complete: false
+                    taskTittle: コーヒー豆を買う
+                    taskBody: いつものコーヒーショップでブレンドを100g
+                    createdAt: "2019-08-24T14:15:22Z"
+                    updatedAt: "2019-10-14T13:21:45Z"
+        "400":
+          description: Bad Request
+  "/tasks/{taskId}":
+    parameters:
+      - schema:
+          type: number
+        name: taskId
+        in: path
+        required: true
+    get:
+      summary: タスクを指定して取得
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TaskInfoResponse"
+              examples:
+                example:
+                  value:
+                    userId: 2c4a230c-5085-4924-a3e1-25fb4fc5965b
+                    taskId: e6e9d88a-9b63-468a-aec3-b7a11de27af8
+                    complete: false
+                    taskTittle: コーヒー豆を買う
+                    taskBody: いつものコーヒーショップでブレンドを100g
+                    createdAt: "2019-08-24T14:15:22Z"
+                    updatedAt: "2019-10-14T13:21:45Z"
+        "404":
+          description: Not Found
+      operationId: getTaskByTaskId
+    put:
+      summary: タスクを指定して更新
+      operationId: putTask
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TaskInfoResponse"
+              examples:
+                example:
+                  value:
+                    userId: 2c4a230c-5085-4924-a3e1-25fb4fc5965b
+                    taskId: e6e9d88a-9b63-468a-aec3-b7a11de27af8
+                    complete: true
+                    taskTittle: コーヒー豆を買う
+                    taskBody: いつものコーヒーショップでブレンドを100g
+                    createdAt: "2019-08-24T14:15:22Z"
+                    updatedAt: "2019-10-27T18:32:34Z"
+        "404":
+          description: Not Found
+      requestBody:
+        content:
+          application/json:
+            schema:
+              description: ""
+              type: object
+              x-examples:
+                example-1:
+                  taskId: e6e9d88a-9b63-468a-aec3-b7a11de27af8
+                  complete: true
+                  taskTittle: string
+                  taskBody: string
+              properties:
+                complete:
+                  type: boolean
+                taskTittle:
+                  type: string
+                  minLength: 1
+                taskBody:
+                  type: string
+                  minLength: 1
+            examples:
+              example:
+                value:
+                  complete: true
+                  taskTittle: コーヒー豆を買う
+                  taskBody: いつものコーヒーショップでブレンドを100g
+        description: ""
+    delete:
+      summary: タスクを指定して削除
+      operationId: deleteTask
+      responses:
+        "204":
+          description: No Content
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+        "404":
+          description: Not Found
