@@ -12,5 +12,5 @@ new MyTodoListStack(app, resourceName, {
   callbackUrls: ['http://localhost:3200/oauth2-redirect.html'],
   logoutUrls: ['http://localhost:3200/oauth2-redirect.html'],
   frontendUrls: ['http://localhost:3200'],
-  domainPrefix: `${process.env.DOMAIN_PREFIX!}-${systemEnv}`,
+  domainPrefix: process.env.DOMAIN_PREFIX!,
 });

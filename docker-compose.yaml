@@ -6,7 +6,7 @@ services:
     environment:
       API_URL: /swagger.yaml
       BASE_URL: /
-    # env_file: .env
+    env_file: .env
     volumes:
       - ./docs/openapi.yaml:/usr/share/nginx/html/swagger.yaml
     ports:

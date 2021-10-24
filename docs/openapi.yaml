@@ -4,7 +4,7 @@ info:
   description: TODOリストを管理するAPI
   version: 1.0.0
 servers:
-  - url: "https://q31nu96sz1.execute-api.ap-northeast-1.amazonaws.com/"
+  - url: "https://uftqq91sl9.execute-api.ap-northeast-1.amazonaws.com/"
 components:
   securitySchemes:
     OAuth2:

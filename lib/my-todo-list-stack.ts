@@ -92,15 +92,15 @@ export class MyTodoListStack extends cdk.Stack {
     const httpApiName = resourceName.apiName('todo');
     const httpApi = new HttpApi(this, httpApiName, {
       apiName: httpApiName,
+      defaultAuthorizer: authorizer,
       corsPreflight: {
         allowOrigins: props.frontendUrls,
         allowMethods: [apigw.CorsHttpMethod.ANY],
         allowHeaders: ['authorization'],
       },
-      defaultAuthorizer: authorizer,
     });
     httpApi.addRoutes({
-      methods: [apigw.HttpMethod.ANY],
+      methods: [apigw.HttpMethod.GET],
       path: '/tasks',
       integration: new LambdaProxyIntegration({ handler: handler }),
     });
