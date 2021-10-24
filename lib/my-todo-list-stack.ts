@@ -8,11 +8,18 @@ import * as dynamodb from '@aws-cdk/aws-dynamodb';
 import { NodejsFunction } from '@aws-cdk/aws-lambda-nodejs';
 import { ResourceName } from './resourceName';
 
+export interface ApigwWithCognitoStackProps extends cdk.StackProps {
+  callbackUrls: string[];
+  logoutUrls: string[];
+  frontendUrls: string[];
+  domainPrefix: string;
+}
+
 export class MyTodoListStack extends cdk.Stack {
   constructor(
     scope: cdk.Construct,
     resourceName: ResourceName,
-    props?: cdk.StackProps
+    props: ApigwWithCognitoStackProps
   ) {
     const id = resourceName.stackName('App');
     super(scope, id, props);
@@ -39,8 +46,8 @@ export class MyTodoListStack extends cdk.Stack {
 
     // Cognito
     const userPoolName = resourceName.userPoolName('todo');
-    const userPool = new cognito.UserPool(this, 'todoUserPool', {
-      userPoolName: 'todoUserPool',
+    const userPool = new cognito.UserPool(this, userPoolName, {
+      userPoolName: userPoolName,
       selfSignUpEnabled: true,
       standardAttributes: {
         email: { required: true, mutable: true },
@@ -51,15 +58,28 @@ export class MyTodoListStack extends cdk.Stack {
       accountRecovery: cognito.AccountRecovery.EMAIL_ONLY,
       removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
+    userPool.addDomain('domain', {
+      cognitoDomain: { domainPrefix: props.domainPrefix },
+    });
 
     const userPoolClientName = resourceName.userPoolClientName('todo');
     const userPoolClient = userPool.addClient(userPoolClientName, {
-      userPoolClientName: userPoolClientName,
-      generateSecret: false,
-      authFlows: {
-        adminUserPassword: true,
+      oAuth: {
+        scopes: [
+          cognito.OAuthScope.EMAIL,
+          cognito.OAuthScope.OPENID,
+          cognito.OAuthScope.PROFILE,
+        ],
+        callbackUrls: props.callbackUrls,
+        logoutUrls: props.logoutUrls,
+        flows: { authorizationCodeGrant: true },
       },
-      preventUserExistenceErrors: true,
+      userPoolClientName: userPoolClientName,
+      // generateSecret: false,
+      // authFlows: {
+      //   adminUserPassword: true,
+      // },
+      // preventUserExistenceErrors: true,
     });
 
     // API Gateway
@@ -73,10 +93,15 @@ export class MyTodoListStack extends cdk.Stack {
     const httpApi = new HttpApi(this, httpApiName, {
       apiName: httpApiName,
       defaultAuthorizer: authorizer,
+      corsPreflight: {
+        allowOrigins: props.frontendUrls,
+        allowMethods: [apigw.CorsHttpMethod.ANY],
+        allowHeaders: ['authorization'],
+      },
     });
     httpApi.addRoutes({
-      methods: [apigw.HttpMethod.ANY],
-      path: '/todo',
+      methods: [apigw.HttpMethod.GET],
+      path: '/tasks',
       integration: new LambdaProxyIntegration({ handler: handler }),
     });
 

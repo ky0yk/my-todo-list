@@ -8,4 +8,9 @@ const systemEnv = process.env.SYSTEM_ENV ? process.env.SYSTEM_ENV : 'dev';
 const resourceName = new ResourceName('MyTodoList', systemEnv);
 
 const app = new cdk.App();
-new MyTodoListStack(app, resourceName);
+new MyTodoListStack(app, resourceName, {
+  callbackUrls: ['http://localhost:3200/oauth2-redirect.html'],
+  logoutUrls: ['http://localhost:3200/oauth2-redirect.html'],
+  frontendUrls: ['http://localhost:3200'],
+  domainPrefix: process.env.DOMAIN_PREFIX!,
+});
