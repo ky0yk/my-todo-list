@@ -36,7 +36,7 @@ export class MyTodoListStack extends cdk.Stack {
     const handlerName = resourceName.lambdaName('todo');
     const handler = new NodejsFunction(this, handlerName, {
       functionName: handlerName,
-      entry: 'src/lambda/handlers/index.ts',
+      entry: 'src/handlers/index.ts',
       environment: {
         TABLE_NAME: tableName,
       },
