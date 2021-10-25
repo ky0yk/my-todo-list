@@ -28,8 +28,8 @@ export class MyTodoListStack extends cdk.Stack {
     const tableName = resourceName.dynamodbName('todo');
     const table = new dynamodb.Table(this, tableName, {
       tableName: tableName,
-      partitionKey: { name: 'userId', type: dynamodb.AttributeType.STRING },
-      sortKey: { name: 'todoId', type: dynamodb.AttributeType.STRING },
+      partitionKey: { name: 'user', type: dynamodb.AttributeType.STRING },
+      sortKey: { name: 'id', type: dynamodb.AttributeType.STRING },
     });
 
     // Lambda
@@ -100,7 +100,7 @@ export class MyTodoListStack extends cdk.Stack {
       },
     });
     httpApi.addRoutes({
-      methods: [apigw.HttpMethod.GET],
+      methods: [apigw.HttpMethod.GET, apigw.HttpMethod.POST],
       path: '/tasks',
       integration: new LambdaProxyIntegration({ handler: handler }),
     });

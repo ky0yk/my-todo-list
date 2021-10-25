@@ -8,7 +8,9 @@ const morgan = require('morgan');
 app.use(express.json());
 app.use(morgan('combined'));
 
-app.use('/', tuc.healthCheck);
+// app.use('/', tuc.healthCheck);
+
+app.post('/tasks', tuc.createTask);
 
 // error handler
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
