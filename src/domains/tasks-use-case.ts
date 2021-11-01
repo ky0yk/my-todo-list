@@ -3,7 +3,7 @@ import jwtDecode, { JwtPayload } from 'jwt-decode';
 import { Express, Request, Response, NextFunction } from 'express';
 import * as ddb from '../infrastructures/dynamodb/tasks-table';
 import { Task } from '../utils/types';
-import { time } from 'console';
+import { validationResult } from 'express-validator';
 
 export const healthCheck = (req: Request, res: Response): void => {
   res.json({ message: 'API is working!' });
@@ -14,7 +14,12 @@ export const createTask = async (
   res: Response,
   next: NextFunction
 ): Promise<void> => {
-  // TODO: バリデーションをいれる
+  //　バリデーション
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    res.status(400).json({ errors: errors.array() });
+    return;
+  }
   const token = req.headers['authorization'];
   const decoded = jwtDecode<JwtPayload>(token!);
   const taskInfo: Task = req.body;
