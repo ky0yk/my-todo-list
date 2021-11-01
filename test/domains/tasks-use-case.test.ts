@@ -36,11 +36,14 @@ describe('ユースケース', () => {
 
   test('タスクの登録ができること', async () => {
     const token = cognitoJwtGenerator('test-user');
+    const currentTime: string = '2021-11-01T12:31:18.023Z';
     const inputItem = {
       tittle: 'コーヒー豆を買う',
       body: 'いつものコーヒーショップでブレンドを100g',
       priority: 1,
       user: jwtDecode<JwtPayload>(token!).sub,
+      createdAt: expect.anything(), // モックを叩く際にcreatedAt, updatedAtが自動生成されるためanythingを利用
+      updatedAt: expect.anything(),
     };
     const expectedItem: Task = {
       id: uuidv4(),

@@ -26,6 +26,8 @@ describe('インフラ', () => {
       body: 'いつものコーヒーショップでブレンドを100g',
       priority: 1,
       completed: false,
+      createdAt: '2021-11-01T12:31:18.023Z',
+      updatedAt: '2021-11-01T12:31:18.023Z',
     };
     ddbMock
       .on(ddbLib.PutCommand, {

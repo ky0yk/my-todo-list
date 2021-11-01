@@ -5,4 +5,6 @@ export type Task = {
   tittle: string;
   body: string;
   priority: number;
+  createdAt: string;
+  updatedAt: string;
 };
