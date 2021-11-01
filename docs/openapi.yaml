@@ -148,10 +148,13 @@ paths:
                 example:
                   value:
                     id: e6e9d88a-9b63-468a-aec3-b7a11de27af8
+                    user: 4daf76eb-fb5a-4bf0-8053-40f5e6bdd8e8
                     completed: false
                     tittle: コーヒー豆を買う
                     body: いつものコーヒーショップでブレンドを100g
                     priority: 1
+                    createdAt: "2021-11-01T12:31:18.023Z"
+                    updatedAt: "2021-11-01T12:31:18.023Z"
         "400":
           description: Bad Request
         "401":
