@@ -184,6 +184,9 @@ paths:
                     tittle: コーヒー豆を買う
                     body: いつものコーヒーショップでブレンドを100g
                     priority: 1
+                    user: 4daf76eb-fb5a-4bf0-8053-40f5e6bdd8e8
+                    updatedAt: "2021-11-02T12:42:33.087Z"
+                    createdAt: "2021-11-02T12:42:33.087Z"
         "401":
           description: Unauthorized
         "404":
