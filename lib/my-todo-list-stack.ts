@@ -28,15 +28,15 @@ export class MyTodoListStack extends cdk.Stack {
     const tableName = resourceName.dynamodbName('todo');
     const table = new dynamodb.Table(this, tableName, {
       tableName: tableName,
-      partitionKey: { name: 'userId', type: dynamodb.AttributeType.STRING },
-      sortKey: { name: 'todoId', type: dynamodb.AttributeType.STRING },
+      partitionKey: { name: 'user', type: dynamodb.AttributeType.STRING },
+      sortKey: { name: 'id', type: dynamodb.AttributeType.STRING },
     });
 
     // Lambda
     const handlerName = resourceName.lambdaName('todo');
     const handler = new NodejsFunction(this, handlerName, {
       functionName: handlerName,
-      entry: 'src/lambda/handlers/index.ts',
+      entry: 'src/handlers/index.ts',
       environment: {
         TABLE_NAME: tableName,
       },
@@ -100,7 +100,7 @@ export class MyTodoListStack extends cdk.Stack {
       },
     });
     httpApi.addRoutes({
-      methods: [apigw.HttpMethod.GET],
+      methods: [apigw.HttpMethod.GET, apigw.HttpMethod.POST],
       path: '/tasks',
       integration: new LambdaProxyIntegration({ handler: handler }),
     });
