@@ -46,7 +46,6 @@ export const getTask = async (
   const user: string = jwtDecode<JwtPayload>(token!).sub!;
   try {
     const result: Task = await ddb.getTask(user, req.params.id);
-    console.log(result);
     result
       ? res.json(result)
       : res.status(404).json('Sorry cant find the task!');
