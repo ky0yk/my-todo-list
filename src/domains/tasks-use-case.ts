@@ -9,6 +9,11 @@ export const healthCheck = (req: Request, res: Response): void => {
   res.json({ message: 'API is working!' });
 };
 
+const getUser = (req: Request): string => {
+  const token = req.headers['authorization'];
+  return jwtDecode<JwtPayload>(token!).sub!;
+};
+
 export const createTask = async (
   req: Request,
   res: Response,
@@ -20,10 +25,8 @@ export const createTask = async (
     res.status(400).json({ errors: errors.array() });
     return;
   }
-  const token = req.headers['authorization'];
-  const decoded = jwtDecode<JwtPayload>(token!);
   const taskInfo: Task = req.body;
-  taskInfo.user = decoded.sub;
+  taskInfo.user = getUser(req);
 
   const currentTime: string = new Date().toISOString();
   taskInfo.createdAt = currentTime;
@@ -42,8 +45,7 @@ export const getTask = async (
   res: Response,
   next: NextFunction
 ): Promise<void> => {
-  const token = req.headers['authorization'];
-  const user: string = jwtDecode<JwtPayload>(token!).sub!;
+  const user: string = getUser(req);
   try {
     const result: Task = await ddb.getTask(user, req.params.id);
     result
@@ -59,8 +61,7 @@ export const getTasks = async (
   res: Response,
   next: NextFunction
 ): Promise<void> => {
-  const token = req.headers['authorization'];
-  const user: string = jwtDecode<JwtPayload>(token!).sub!;
+  const user: string = getUser(req);
   try {
     const result: TaskSummary[] = await ddb.getTasks(user);
     res.json(result);
