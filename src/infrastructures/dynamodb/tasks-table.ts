@@ -23,3 +23,17 @@ export const createTask = async (taskInfo: Task): Promise<Task> => {
   );
   return taskInfo;
 };
+
+export const getTask = async (user: string, taskId: string): Promise<Task> => {
+  const params: ddbLib.GetCommandInput = {
+    TableName: tableName,
+    Key: {
+      user: user,
+      id: taskId,
+    },
+  };
+  const data: ddbLib.GetCommandOutput = await ddbDocClient.send(
+    new ddbLib.GetCommand(params)
+  );
+  return data.Item as Task;
+};

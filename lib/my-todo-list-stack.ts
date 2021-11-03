@@ -104,6 +104,11 @@ export class MyTodoListStack extends cdk.Stack {
       path: '/tasks',
       integration: new LambdaProxyIntegration({ handler: handler }),
     });
+    httpApi.addRoutes({
+      methods: [apigw.HttpMethod.GET],
+      path: '/tasks/{id}',
+      integration: new LambdaProxyIntegration({ handler: handler }),
+    });
 
     // Cfn Output
     new cdk.CfnOutput(this, 'userPoolId', { value: userPool.userPoolId });

@@ -36,3 +36,20 @@ export const createTask = async (
     next(err);
   }
 };
+
+export const getTask = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  const token = req.headers['authorization'];
+  const user: string = jwtDecode<JwtPayload>(token!).sub!;
+  try {
+    const result: Task = await ddb.getTask(user, req.params.id);
+    result
+      ? res.json(result)
+      : res.status(404).json('Sorry cant find the task!');
+  } catch (err) {
+    next(err);
+  }
+};

@@ -62,4 +62,33 @@ describe('ユースケース', () => {
     expect(res.status).toEqual(201);
     expect(res.body).toEqual(expectedItem);
   });
+
+  test('タスク詳細の取得ができること', async () => {
+    const token = cognitoJwtGenerator('test-user');
+    const inputId: string = '4e469469-2745-4f9d-a7b4-f59b67b54bee';
+    const user: string = '7d8ca528-4931-4254-9273-ea5ee853f271';
+
+    const expectedItem: Task = {
+      tittle: 'コーヒー豆を買う',
+      body: 'いつものコーヒーショップでブレンドを100g',
+      priority: 1,
+      user: '7d8ca528-4931-4254-9273-ea5ee853f271',
+      createdAt: '2021-11-01T12:31:18.023Z',
+      updatedAt: '2021-11-01T12:31:18.023Z',
+      id: '4e469469-2745-4f9d-a7b4-f59b67b54bee',
+      completed: false,
+    };
+    const getTaskMock = (infra.getTask as jest.Mock).mockResolvedValue(
+      expectedItem
+    );
+    const res: request.Response = await request(server)
+      .get(`/tasks/${inputId}`)
+      .set('authorization', token)
+      .send();
+    expect(getTaskMock.mock.calls.length).toBe(1);
+    expect(getTaskMock.mock.calls[0][0]).toEqual(user); // userの確認
+    expect(getTaskMock.mock.calls[0][1]).toEqual(inputId); // idの確認
+    expect(res.status).toEqual(200);
+    expect(res.body).toEqual(expectedItem);
+  });
 });
