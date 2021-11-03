@@ -2,7 +2,7 @@ import { mockClient } from 'aws-sdk-client-mock';
 import * as ddbLib from '@aws-sdk/lib-dynamodb';
 import * as infra from '../../../src/infrastructures/dynamodb/tasks-table';
 import { v4 as uuidv4 } from 'uuid';
-import { Task } from '../../../src/utils/types';
+import { Task, TaskSummary } from '../../../src/utils/types';
 
 const tableName = process.env.TABLE_NAME;
 const ddbMock = mockClient(infra.ddbDocClient);
@@ -39,6 +39,41 @@ describe('インフラ', () => {
       });
     const res: Task = await infra.createTask(inputItem);
     expect(res).toStrictEqual(inputItem);
+  });
+
+  test('タスク一覧の取得ができること', async () => {
+    const user = '7d8ca528-4931-4254-9273-ea5ee853f271';
+    const expectedItem: TaskSummary[] = [
+      {
+        tittle: 'コーヒー豆を買う',
+        priority: 1,
+        id: '4e469469-2745-4f9d-a7b4-f59b67b54bee',
+        completed: false,
+      },
+      {
+        tittle: 'ドーナッツを買う',
+        priority: 1,
+        id: '492b0f4a-9017-4b08-be43-a89d545863eb',
+        completed: false,
+      },
+    ];
+    ddbMock
+      .on(ddbLib.QueryCommand, {
+        TableName: tableName,
+        ExpressionAttributeNames: {
+          '#user': 'user',
+        },
+        ExpressionAttributeValues: {
+          ':u': user,
+        },
+        KeyConditionExpression: '#user = :u',
+        ProjectionExpression: 'id, tittle, priority, completed',
+      })
+      .resolves({
+        Items: expectedItem,
+      });
+    const res: TaskSummary[] = await infra.getTasks(user);
+    expect(res).toStrictEqual(expectedItem);
   });
 
   test('タスクの詳細が取得ができること', async () => {

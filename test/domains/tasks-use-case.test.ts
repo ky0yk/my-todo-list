@@ -3,7 +3,7 @@ import request = require('supertest');
 const app = require('../../src/domains/app');
 import * as infra from '../../src/infrastructures/dynamodb/tasks-table';
 import { v4 as uuidv4 } from 'uuid';
-import { Task } from '../../src/utils/types';
+import { Task, TaskSummary } from '../../src/utils/types';
 import { cognitoJwtGenerator } from './cognitoJwtGenerator';
 import jwtDecode, { JwtPayload } from 'jwt-decode';
 
@@ -60,6 +60,37 @@ describe('ユースケース', () => {
     expect(createTaskMock.mock.calls.length).toBe(1);
     expect(createTaskMock.mock.calls[0][0]).toEqual(inputItem);
     expect(res.status).toEqual(201);
+    expect(res.body).toEqual(expectedItem);
+  });
+
+  test('タスク一覧の取得ができること', async () => {
+    const token = cognitoJwtGenerator('test-user');
+    const user: string = '7d8ca528-4931-4254-9273-ea5ee853f271';
+
+    const expectedItem: TaskSummary[] = [
+      {
+        tittle: 'コーヒー豆を買う',
+        priority: 1,
+        id: '4e469469-2745-4f9d-a7b4-f59b67b54bee',
+        completed: false,
+      },
+      {
+        tittle: 'ドーナッツを買う',
+        priority: 1,
+        id: '492b0f4a-9017-4b08-be43-a89d545863eb',
+        completed: false,
+      },
+    ];
+    const getTaskMock = (infra.getTasks as jest.Mock).mockResolvedValue(
+      expectedItem
+    );
+    const res: request.Response = await request(server)
+      .get(`/tasks`)
+      .set('authorization', token)
+      .send();
+    expect(getTaskMock.mock.calls.length).toBe(1);
+    expect(getTaskMock.mock.calls[0][0]).toEqual(user); // userの確認
+    expect(res.status).toEqual(200);
     expect(res.body).toEqual(expectedItem);
   });
 
