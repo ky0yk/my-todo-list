@@ -1,7 +1,7 @@
 import * as ddbLib from '@aws-sdk/lib-dynamodb';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { v4 as uuidv4 } from 'uuid';
-import { Task } from '../../utils/types';
+import { Task, TaskSummary } from '../../utils/types';
 
 const tableName: string | undefined = process.env.TABLE_NAME;
 if (!tableName) {
@@ -24,7 +24,7 @@ export const createTask = async (taskInfo: Task): Promise<Task> => {
   return taskInfo;
 };
 
-export const getTask = async (user: string, taskId: string): Promise<Task> => {
+export const getTask = async (user: string, taskId?: string): Promise<Task> => {
   const params: ddbLib.GetCommandInput = {
     TableName: tableName,
     Key: {
@@ -36,4 +36,22 @@ export const getTask = async (user: string, taskId: string): Promise<Task> => {
     new ddbLib.GetCommand(params)
   );
   return data.Item as Task;
+};
+
+export const getTasks = async (user: string): Promise<TaskSummary[]> => {
+  const params: ddbLib.QueryCommandInput = {
+    TableName: tableName,
+    ExpressionAttributeNames: {
+      '#user': 'user',
+    },
+    ExpressionAttributeValues: {
+      ':u': user,
+    },
+    KeyConditionExpression: '#user = :u',
+    ProjectionExpression: 'id, tittle, priority, completed',
+  };
+  const data: ddbLib.QueryCommandOutput = await ddbDocClient.send(
+    new ddbLib.QueryCommand(params)
+  );
+  return data.Items as TaskSummary[];
 };

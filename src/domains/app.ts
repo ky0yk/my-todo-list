@@ -11,8 +11,10 @@ app.use(morgan('combined'));
 
 app.get('/', tuc.healthCheck);
 
-app.get('/tasks/:id', tuc.getTask);
+app.get('/tasks', tuc.getTasks);
 app.post('/tasks', createTaskValidator, tuc.createTask);
+
+app.get('/tasks/:id', tuc.getTask);
 
 // error handler
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {

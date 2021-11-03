@@ -8,3 +8,10 @@ export type Task = {
   createdAt: string;
   updatedAt: string;
 };
+
+export type TaskSummary = {
+  id: string;
+  tittle: string;
+  priority: number;
+  completed: boolean;
+};

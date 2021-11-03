@@ -2,7 +2,7 @@ import jwtDecode, { JwtPayload } from 'jwt-decode';
 
 import { Express, Request, Response, NextFunction } from 'express';
 import * as ddb from '../infrastructures/dynamodb/tasks-table';
-import { Task } from '../utils/types';
+import { Task, TaskSummary } from '../utils/types';
 import { validationResult } from 'express-validator';
 
 export const healthCheck = (req: Request, res: Response): void => {
@@ -49,6 +49,21 @@ export const getTask = async (
     result
       ? res.json(result)
       : res.status(404).json('Sorry cant find the task!');
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const getTasks = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  const token = req.headers['authorization'];
+  const user: string = jwtDecode<JwtPayload>(token!).sub!;
+  try {
+    const result: TaskSummary[] = await ddb.getTasks(user);
+    res.json(result);
   } catch (err) {
     next(err);
   }
