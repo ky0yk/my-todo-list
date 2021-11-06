@@ -1,8 +1,8 @@
-import { body, check } from 'express-validator';
+import { body } from 'express-validator';
 
 export const createTaskValidator = [
-  check('tittle').isString().trim().notEmpty(),
-  check('priority').isNumeric(),
+  body('tittle').exists().trim().notEmpty().isString(),
+  body('priority').exists().not().isString().isInt(),
 ];
 
 export const updateTaskValidator = [
