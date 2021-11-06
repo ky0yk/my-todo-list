@@ -112,3 +112,19 @@ export const updateTask = async (
     next(err);
   }
 };
+
+export const deleteTask = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  const user = getUser(req);
+  try {
+    const result = await ddb.deleteTask(user, req.params.id);
+    result
+      ? res.status(204).json('{}')
+      : res.status(404).json('Sorry cant find the task!');
+  } catch (err) {
+    next(err);
+  }
+};
