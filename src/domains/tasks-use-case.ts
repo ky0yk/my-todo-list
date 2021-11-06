@@ -16,7 +16,6 @@ const getUser = (req: Request): string => {
 
 const validation = (req: Request, res: Response): void => {
   const errors = validationResult(req);
-  console.log(errors);
   if (!errors.isEmpty()) {
     res.status(400).json({ errors: errors.array() });
     return;
