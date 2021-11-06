@@ -100,4 +100,59 @@ describe('インフラ', () => {
     const res: Task = await infra.getTask(user, inputId);
     expect(res).toStrictEqual(expectedItem);
   });
+
+  test('IDに対応するタスクの更新ができること', async () => {
+    const inputId = '4e469469-2745-4f9d-a7b4-f59b67b54bee';
+    const user = '7d8ca528-4931-4254-9273-ea5ee853f271';
+    const inputItem = {
+      tittle: 'コーヒー豆を買う',
+      body: 'いつものコーヒーショップでブレンドを100g',
+      priority: 2,
+      user: '7d8ca528-4931-4254-9273-ea5ee853f271',
+      updatedAt: '2021-11-01T12:31:18.023Z',
+      id: '4e469469-2745-4f9d-a7b4-f59b67b54bee',
+      completed: true,
+    };
+    const expectedItem: Task = {
+      tittle: 'コーヒー豆を買う',
+      body: 'いつものコーヒーショップでブレンドを100g',
+      priority: 2,
+      user: '7d8ca528-4931-4254-9273-ea5ee853f271',
+      createdAt: '2021-11-01T12:31:18.023Z',
+      updatedAt: '2021-11-01T12:31:18.023Z',
+      id: '4e469469-2745-4f9d-a7b4-f59b67b54bee',
+      completed: true,
+    };
+    ddbMock
+      .on(ddbLib.UpdateCommand, {
+        TableName: tableName,
+        Key: { id: inputId, user: user },
+        UpdateExpression:
+          'set #att_tittle =:tittle,#att_body =:body,#att_priority =:priority,#att_user =:user,#att_updatedAt =:updatedAt,#att_id =:id,#att_completed =:completed',
+        ExpressionAttributeNames: {
+          '#att_tittle': 'tittle',
+          '#att_body': 'body',
+          '#att_priority': 'priority',
+          '#att_user': 'user',
+          '#att_updatedAt': 'updatedAt',
+          '#att_id': 'id',
+          '#att_completed': 'completed',
+        },
+        ExpressionAttributeValues: {
+          ':tittle': 'コーヒー豆を買う',
+          ':body': 'いつものコーヒーショップでブレンドを100g',
+          ':priority': 2,
+          ':user': user,
+          ':updatedAt': '2021-11-01T12:31:18.023Z',
+          ':id': inputId,
+          ':completed': true,
+        },
+        ReturnValues: 'ALL_NEW',
+      })
+      .resolves({
+        Attributes: expectedItem,
+      });
+    const res: Task = await infra.updateTask(user, inputId, inputItem);
+    expect(res).toStrictEqual(expectedItem);
+  });
 });
