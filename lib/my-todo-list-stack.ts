@@ -105,7 +105,7 @@ export class MyTodoListStack extends cdk.Stack {
       integration: new LambdaProxyIntegration({ handler: handler }),
     });
     httpApi.addRoutes({
-      methods: [apigw.HttpMethod.GET],
+      methods: [apigw.HttpMethod.GET, apigw.HttpMethod.PUT],
       path: '/tasks/{id}',
       integration: new LambdaProxyIntegration({ handler: handler }),
     });

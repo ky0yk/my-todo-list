@@ -1,7 +1,7 @@
 import * as ddbLib from '@aws-sdk/lib-dynamodb';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { v4 as uuidv4 } from 'uuid';
-import { Task, TaskSummary } from '../../utils/types';
+import { Task, TaskSummary, UpdateTaskInfo } from '../../utils/types';
 
 const tableName: string | undefined = process.env.TABLE_NAME;
 if (!tableName) {
@@ -54,4 +54,37 @@ export const getTasks = async (user: string): Promise<TaskSummary[]> => {
     new ddbLib.QueryCommand(params)
   );
   return data.Items as TaskSummary[];
+};
+
+export const updateTask = async (
+  user: string,
+  id: string,
+  updateTaskInfo: UpdateTaskInfo
+): Promise<Task> => {
+  // クエリの組み立て
+  const updateExpression = Object.keys(updateTaskInfo).map(
+    (key) => `#att_${key} =:${key}`
+  );
+  const expressionAttributeNames = Object.fromEntries(
+    Object.entries(updateTaskInfo).map(([k, v]) => [`#att_${k}`, k])
+  );
+  const expressionAttributeValues = Object.fromEntries(
+    Object.entries(updateTaskInfo).map(([k, v]) => [`:${k}`, v])
+  );
+  // DynamoDBへの登録
+  const params: ddbLib.UpdateCommandInput = {
+    TableName: tableName,
+    Key: {
+      id: id,
+      user: user,
+    },
+    UpdateExpression: `set ${updateExpression.join()}`,
+    ExpressionAttributeNames: expressionAttributeNames,
+    ExpressionAttributeValues: expressionAttributeValues,
+    ReturnValues: 'ALL_NEW',
+  };
+  const result: ddbLib.UpdateCommandOutput = await ddbDocClient.send(
+    new ddbLib.UpdateCommand(params)
+  );
+  return result.Attributes as Task;
 };

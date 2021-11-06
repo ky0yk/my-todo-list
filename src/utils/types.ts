@@ -1,5 +1,5 @@
 export type Task = {
-  id: string;
+  id?: string;
   user?: string;
   completed: boolean;
   tittle: string;
@@ -14,4 +14,12 @@ export type TaskSummary = {
   tittle: string;
   priority: number;
   completed: boolean;
+};
+
+export type UpdateTaskInfo = {
+  tittle: string;
+  body: string;
+  priority: number;
+  completed: boolean;
+  updatedAt?: string;
 };
