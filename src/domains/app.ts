@@ -16,6 +16,7 @@ app.post('/tasks', createTaskValidator, tuc.createTask);
 
 app.get('/tasks/:id', tuc.getTask);
 app.put('/tasks/:id', updateTaskValidator, tuc.updateTask);
+app.delete('/tasks/:id', tuc.deleteTask);
 
 // error handler
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {

@@ -153,4 +153,27 @@ describe('ユースケース', () => {
     expect(res.status).toEqual(200);
     expect(res.body).toEqual(expectedItem);
   });
+
+  test('タスクの削除ができること', async () => {
+    const token = cognitoJwtGenerator('test-user');
+    const inputId: string = '4e469469-2745-4f9d-a7b4-f59b67b54bee';
+    const user: string = '7d8ca528-4931-4254-9273-ea5ee853f271';
+
+    const expectedItem = {
+      id: inputId,
+      user: user,
+    };
+    const deleteTaskMock = (infra.deleteTask as jest.Mock).mockResolvedValue(
+      expectedItem
+    );
+    const res: request.Response = await request(server)
+      .delete(`/tasks/${inputId}`)
+      .set('authorization', token)
+      .send();
+    expect(deleteTaskMock.mock.calls.length).toBe(1);
+    expect(deleteTaskMock.mock.calls[0][0]).toEqual(user);
+    expect(deleteTaskMock.mock.calls[0][1]).toEqual(inputId);
+    expect(res.status).toEqual(204);
+    expect(res.body).toEqual({});
+  });
 });

@@ -155,4 +155,33 @@ describe('インフラ', () => {
     const res: Task = await infra.updateTask(user, inputId, inputItem);
     expect(res).toStrictEqual(expectedItem);
   });
+
+  test('IDに対応するタスクの削除ができること', async () => {
+    const inputId = '4e469469-2745-4f9d-a7b4-f59b67b54bee';
+    const user = '7d8ca528-4931-4254-9273-ea5ee853f271';
+    const expectedItem: Task = {
+      tittle: 'コーヒー豆を買う',
+      body: 'いつものコーヒーショップでブレンドを100g',
+      priority: 2,
+      user: '7d8ca528-4931-4254-9273-ea5ee853f271',
+      createdAt: '2021-11-01T12:31:18.023Z',
+      updatedAt: '2021-11-01T12:31:18.023Z',
+      id: '4e469469-2745-4f9d-a7b4-f59b67b54bee',
+      completed: true,
+    };
+    ddbMock
+      .on(ddbLib.DeleteCommand, {
+        TableName: tableName,
+        Key: {
+          id: inputId,
+          user: user,
+        },
+        ReturnValues: 'ALL_OLD',
+      })
+      .resolves({
+        Attributes: expectedItem,
+      });
+    const res = await infra.deleteTask(user, inputId);
+    expect(res).toStrictEqual(expectedItem);
+  });
 });

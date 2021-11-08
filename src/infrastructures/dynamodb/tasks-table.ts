@@ -88,3 +88,18 @@ export const updateTask = async (
   );
   return result.Attributes as Task;
 };
+
+export const deleteTask = async (user: string, id: string) => {
+  const params: ddbLib.DeleteCommandInput = {
+    TableName: tableName,
+    Key: {
+      id: id,
+      user: user,
+    },
+    ReturnValues: 'ALL_OLD',
+  };
+  const result: ddbLib.DeleteCommandOutput = await ddbDocClient.send(
+    new ddbLib.DeleteCommand(params)
+  );
+  return result.Attributes;
+};
