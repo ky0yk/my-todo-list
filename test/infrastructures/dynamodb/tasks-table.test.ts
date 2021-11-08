@@ -156,7 +156,7 @@ describe('インフラ', () => {
     expect(res).toStrictEqual(expectedItem);
   });
 
-  test('IDに対応するクマ情報の削除ができること', async () => {
+  test('IDに対応するタスクの削除ができること', async () => {
     const inputId = '4e469469-2745-4f9d-a7b4-f59b67b54bee';
     const user = '7d8ca528-4931-4254-9273-ea5ee853f271';
     const expectedItem: Task = {
