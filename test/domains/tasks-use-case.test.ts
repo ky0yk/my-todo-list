@@ -1,6 +1,6 @@
 import * as http from 'http';
 import request = require('supertest');
-const app = require('../../src/domains/app');
+const app = require('../../src/handlers/app');
 import * as infra from '../../src/infrastructures/dynamodb/tasks-table';
 import { v4 as uuidv4 } from 'uuid';
 import { Task, TaskSummary, UpdateTaskInfo } from '../../src/utils/types';
