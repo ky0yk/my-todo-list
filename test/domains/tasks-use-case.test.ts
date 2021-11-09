@@ -42,12 +42,12 @@ describe('ユースケース', () => {
       body: 'いつものコーヒーショップでブレンドを100g',
       priority: 1,
       user: jwtDecode<JwtPayload>(token!).sub,
+      completed: false,
       createdAt: expect.anything(), // モックを叩く際にcreatedAt, updatedAtが自動生成されるためanythingを利用
       updatedAt: expect.anything(),
     };
     const expectedItem: Task = {
       id: uuidv4(),
-      completed: false,
       ...inputItem,
     };
     const createTaskMock = (infra.createTask as jest.Mock).mockResolvedValue(
