@@ -31,6 +31,8 @@ export const createTask = async (
   const taskInfo: Task = req.body;
   taskInfo.user = getUser(req);
 
+  taskInfo.completed = false;
+
   const currentTime: string = new Date().toISOString();
   taskInfo.createdAt = currentTime;
   taskInfo.updatedAt = currentTime;
