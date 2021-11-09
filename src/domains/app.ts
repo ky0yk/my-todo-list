@@ -1,6 +1,6 @@
 import express = require('express');
 import { Express, Request, Response, NextFunction } from 'express';
-import * as tuc from '../domains/tasks-use-case';
+import * as tuc from './tasks-use-case';
 import { createTaskValidator, updateTaskValidator } from './validators';
 
 const app: Express = express().disable('x-powered-by');
