@@ -97,7 +97,7 @@ describe('インフラ', () => {
       .resolves({
         Item: expectedItem,
       });
-    const res: Task = await infra.getTask(user, inputId);
+    const res = await infra.getTask(user, inputId);
     expect(res).toStrictEqual(expectedItem);
   });
 
