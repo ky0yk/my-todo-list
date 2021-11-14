@@ -69,6 +69,10 @@ export const getTasks = async (
   const user: string = getUser(req);
   try {
     const result: TaskSummary[] = await ddb.getTasks(user);
+    // 優先度が若い順にソート
+    result.sort((a, b) =>
+      a.priority < b.priority ? -1 : a.priority > b.priority ? 1 : 0
+    );
     res.json(result);
   } catch (err) {
     next(err);
