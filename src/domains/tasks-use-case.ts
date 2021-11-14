@@ -52,7 +52,7 @@ export const getTask = async (
 ): Promise<void> => {
   const user: string = getUser(req);
   try {
-    const result: Task = await ddb.getTask(user, req.params.id);
+    const result = await ddb.getTask(user, req.params.id);
     result
       ? res.json(result)
       : res.status(404).json('Sorry cant find the task!');
@@ -79,9 +79,19 @@ export const updateTask = async (
   req: Request,
   res: Response,
   next: NextFunction
-): Promise<void> => {
+): Promise<Response | void> => {
   const user: string = getUser(req);
   validation(req, res);
+
+  // DBに該当するタスクが存在することを担保
+  try {
+    const result = await ddb.getTask(user, req.params.id);
+    if (!result) {
+      return res.status(404).json('Sorry cant find the task!');
+    }
+  } catch (err) {
+    next(err);
+  }
 
   // オブジェクトのサブセットを取得し、不要なプロパティを削除
   const updateTaskInfo: UpdateTaskInfo = (({
@@ -109,7 +119,7 @@ export const updateTask = async (
       req.params.id,
       updateTaskInfo
     );
-    res.json(result);
+    return res.json(result);
   } catch (err) {
     next(err);
   }
