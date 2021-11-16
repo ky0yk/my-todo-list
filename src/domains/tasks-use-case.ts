@@ -2,8 +2,14 @@ import jwtDecode, { JwtPayload } from 'jwt-decode';
 
 import { Express, Request, Response, NextFunction } from 'express';
 import * as ddb from '../infrastructures/dynamodb/tasks-table';
-import { Task, TaskSummary, UpdateTaskInfo } from '../utils/types';
+import {
+  CreateTaskInfo,
+  Task,
+  TaskSummary,
+  UpdateTaskInfo,
+} from '../utils/types';
 import { validationResult } from 'express-validator';
+import { v4 as uuidv4 } from 'uuid';
 
 export const healthCheck = (req: Request, res: Response): void => {
   res.json({ message: 'API is working!' });
@@ -28,17 +34,21 @@ export const createTask = async (
   next: NextFunction
 ): Promise<Response | void> => {
   validation(req, res);
-  const taskInfo: Task = req.body;
-  taskInfo.user = getUser(req);
 
-  taskInfo.completed = false;
-
+  const preCreateTaskInfo: CreateTaskInfo = req.body;
   const currentTime: string = new Date().toISOString();
-  taskInfo.createdAt = currentTime;
-  taskInfo.updatedAt = currentTime;
+
+  const createTaskInfo: Task = {
+    ...preCreateTaskInfo,
+    id: uuidv4(),
+    user: getUser(req),
+    completed: false,
+    createdAt: currentTime,
+    updatedAt: currentTime,
+  };
 
   try {
-    const result: Task = await ddb.createTask(taskInfo);
+    const result: Task = await ddb.createTask(createTaskInfo);
     return res.status(201).json(result);
   } catch (err) {
     next(err);

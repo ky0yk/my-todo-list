@@ -3,7 +3,12 @@ import request = require('supertest');
 const app = require('../../src/handlers/app');
 import * as infra from '../../src/infrastructures/dynamodb/tasks-table';
 import { v4 as uuidv4 } from 'uuid';
-import { Task, TaskSummary, UpdateTaskInfo } from '../../src/utils/types';
+import {
+  CreateTaskInfo,
+  Task,
+  TaskSummary,
+  UpdateTaskInfo,
+} from '../../src/utils/types';
 import { cognitoJwtGenerator } from './cognitoJwtGenerator';
 import jwtDecode, { JwtPayload } from 'jwt-decode';
 
@@ -36,19 +41,20 @@ describe('ユースケース', () => {
 
   test('タスクの登録ができること', async () => {
     const token = cognitoJwtGenerator('test-user');
-    const currentTime: string = '2021-11-01T12:31:18.023Z';
-    const inputItem = {
+    const inputItem: CreateTaskInfo = {
       tittle: 'コーヒー豆を買う',
       body: 'いつものコーヒーショップでブレンドを100g',
       priority: 1,
-      user: jwtDecode<JwtPayload>(token!).sub,
+    };
+    const expectedItem: Task = {
+      tittle: 'コーヒー豆を買う',
+      body: 'いつものコーヒーショップでブレンドを100g',
+      priority: 1,
+      id: expect.anything(), // idは自動生成のためanythingを利用
+      user: '7d8ca528-4931-4254-9273-ea5ee853f271',
       completed: false,
       createdAt: expect.anything(), // モックを叩く際にcreatedAt, updatedAtが自動生成されるためanythingを利用
       updatedAt: expect.anything(),
-    };
-    const expectedItem: Task = {
-      id: uuidv4(),
-      ...inputItem,
     };
     const createTaskMock = (infra.createTask as jest.Mock).mockResolvedValue(
       expectedItem
@@ -58,7 +64,8 @@ describe('ユースケース', () => {
       .set('authorization', token)
       .send(inputItem);
     expect(createTaskMock.mock.calls.length).toBe(1);
-    expect(createTaskMock.mock.calls[0][0]).toEqual(inputItem);
+    console.log(createTaskMock.mock.calls[0][0]);
+    expect(createTaskMock.mock.calls[0][0]).toEqual(expectedItem);
     expect(res.status).toEqual(201);
     expect(res.body).toEqual(expectedItem);
   });
