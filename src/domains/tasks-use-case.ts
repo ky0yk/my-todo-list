@@ -26,7 +26,7 @@ export const createTask = async (
   req: Request,
   res: Response,
   next: NextFunction
-): Promise<void> => {
+): Promise<Response | void> => {
   validation(req, res);
   const taskInfo: Task = req.body;
   taskInfo.user = getUser(req);
@@ -39,7 +39,7 @@ export const createTask = async (
 
   try {
     const result: Task = await ddb.createTask(taskInfo);
-    res.status(201).json(result);
+    return res.status(201).json(result);
   } catch (err) {
     next(err);
   }
@@ -49,13 +49,15 @@ export const getTask = async (
   req: Request,
   res: Response,
   next: NextFunction
-): Promise<void> => {
+): Promise<Response | void> => {
   const user: string = getUser(req);
   try {
     const result = await ddb.getTask(user, req.params.id);
-    result
-      ? res.json(result)
-      : res.status(404).json('Sorry cant find the task!');
+    if (result) {
+      return res.json(result);
+    } else {
+      res.status(404).json('Sorry cant find the task!');
+    }
   } catch (err) {
     next(err);
   }
@@ -65,7 +67,7 @@ export const getTasks = async (
   req: Request,
   res: Response,
   next: NextFunction
-): Promise<void> => {
+): Promise<Response | void> => {
   const user: string = getUser(req);
   try {
     const result: TaskSummary[] = await ddb.getTasks(user);
@@ -73,7 +75,7 @@ export const getTasks = async (
     result.sort((a, b) =>
       a.priority < b.priority ? -1 : a.priority > b.priority ? 1 : 0
     );
-    res.json(result);
+    return res.json(result);
   } catch (err) {
     next(err);
   }
@@ -133,13 +135,15 @@ export const deleteTask = async (
   req: Request,
   res: Response,
   next: NextFunction
-): Promise<void> => {
+): Promise<Response | void> => {
   const user = getUser(req);
   try {
     const result = await ddb.deleteTask(user, req.params.id);
-    result
-      ? res.status(204).json('{}')
-      : res.status(404).json('Sorry cant find the task!');
+    if (result) {
+      return res.status(204).json('{}');
+    } else {
+      return res.status(404).json('Sorry cant find the task!');
+    }
   } catch (err) {
     next(err);
   }
