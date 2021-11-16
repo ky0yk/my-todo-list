@@ -62,7 +62,7 @@ export const getTask = async (
 ): Promise<Response | void> => {
   const user: string = getUser(req);
   try {
-    const result = await ddb.getTask(user, req.params.id);
+    const result: Task | undefined = await ddb.getTask(user, req.params.id);
     if (result) {
       return res.json(result);
     } else {
