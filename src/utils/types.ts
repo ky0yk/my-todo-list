@@ -1,6 +1,6 @@
 export type Task = {
-  id?: string;
-  user?: string;
+  id: string;
+  user: string;
   completed: boolean;
   tittle: string;
   body: string;
@@ -16,10 +16,16 @@ export type TaskSummary = {
   completed: boolean;
 };
 
+export type CreateTaskInfo = {
+  tittle: string;
+  body: string;
+  priority: number;
+};
+
 export type UpdateTaskInfo = {
   tittle: string;
   body: string;
   priority: number;
   completed: boolean;
-  updatedAt?: string;
+  updatedAt: string;
 };
