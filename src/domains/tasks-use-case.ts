@@ -35,11 +35,22 @@ export const createTask = async (
 ): Promise<Response | void> => {
   validation(req, res);
 
-  const preCreateTaskInfo: CreateTaskInfo = req.body;
+  // リクエストボディに対して、（必要あれば）タスクの本文を補完
+  const preCreateTaskInfo = req.body;
+  preCreateTaskInfo.body = preCreateTaskInfo.body || '';
+
+  // オブジェクトのサブセットを取得し、不要なプロパティを削除
+  const createTaskInfo: CreateTaskInfo = (({ tittle, body, priority }) => ({
+    tittle,
+    body,
+    priority,
+  }))(preCreateTaskInfo);
+
+  // タイムスタンプを付与
   const currentTime: string = new Date().toISOString();
 
-  const createTaskInfo: Task = {
-    ...preCreateTaskInfo,
+  const taskInfo: Task = {
+    ...createTaskInfo,
     id: uuidv4(),
     user: getUser(req),
     completed: false,
@@ -48,7 +59,7 @@ export const createTask = async (
   };
 
   try {
-    const result: Task = await ddb.createTask(createTaskInfo);
+    const result: Task = await ddb.createTask(taskInfo);
     return res.status(201).json(result);
   } catch (err) {
     next(err);
@@ -109,24 +120,25 @@ export const updateTask = async (
     next(err);
   }
 
+  // リクエストボディに対して、タイムスタンプと（必要あれば）タスクの本文を補完
+  const preUpdateTaskInfo = req.body;
+  preUpdateTaskInfo.updatedAt = new Date().toISOString();
+  preUpdateTaskInfo.body = preUpdateTaskInfo.body || '';
+
   // オブジェクトのサブセットを取得し、不要なプロパティを削除
   const updateTaskInfo: UpdateTaskInfo = (({
     tittle,
     body,
     priority,
     completed,
+    updatedAt,
   }) => ({
     tittle,
     body,
     priority,
     completed,
-  }))(req.body);
-
-  // タスクのボディがない場合は空文字を追加
-  updateTaskInfo.body = updateTaskInfo.body || '';
-
-  // タイムスタンプを付与
-  updateTaskInfo.updatedAt = new Date().toISOString();
+    updatedAt,
+  }))(preUpdateTaskInfo);
 
   try {
     const result: Task = await ddb.updateTask(

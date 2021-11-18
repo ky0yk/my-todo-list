@@ -140,11 +140,11 @@ describe('ユースケース', () => {
       body: 'いつものコーヒーショップでブレンドを100g',
       priority: 2,
       completed: true,
+      updatedAt: expect.anything(),
     };
     const expectedItem = {
       id: inputId,
       user: user,
-      updatedAt: expect.anything(),
       ...inputItem,
     };
     const updateTaskMock = (infra.updateTask as jest.Mock).mockResolvedValue(

@@ -24,8 +24,8 @@ export type CreateTaskInfo = {
 
 export type UpdateTaskInfo = {
   tittle: string;
-  body?: string;
+  body: string;
   priority: number;
   completed: boolean;
-  updatedAt?: string;
+  updatedAt: string;
 };
