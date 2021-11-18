@@ -11,10 +11,6 @@ import {
 import { validationResult } from 'express-validator';
 import { v4 as uuidv4 } from 'uuid';
 
-export const healthCheck = (req: Request, res: Response): void => {
-  res.json({ message: 'API is working!' });
-};
-
 const getUser = (req: Request): string => {
   const token = req.headers['authorization'];
   return jwtDecode<JwtPayload>(token!).sub!;

@@ -33,12 +33,6 @@ describe('ユースケース', () => {
     server.close();
   });
 
-  test('ヘルスチェックAPIが利用できる', async () => {
-    const res: request.Response = await request(server).get('/');
-    expect(res.status).toEqual(200);
-    expect(res.body).toEqual({ message: 'API is working!' });
-  });
-
   test('タスクの登録ができること', async () => {
     const token = cognitoJwtGenerator('test-user');
     const inputItem: CreateTaskInfo = {
