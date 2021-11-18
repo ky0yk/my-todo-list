@@ -122,7 +122,10 @@ export const updateTask = async (
     completed,
   }))(req.body);
 
+  // タスクのボディがない場合は空文字を追加
   updateTaskInfo.body = updateTaskInfo.body || '';
+
+  // タイムスタンプを付与
   updateTaskInfo.updatedAt = new Date().toISOString();
 
   try {
@@ -142,7 +145,7 @@ export const deleteTask = async (
   res: Response,
   next: NextFunction
 ): Promise<Response | void> => {
-  const user = getUser(req);
+  const user: string = getUser(req);
   try {
     const result = await ddb.deleteTask(user, req.params.id);
     if (result) {
