@@ -101,7 +101,7 @@ export const updateTask = async (
 
   // DBに該当するタスクが存在することを担保
   try {
-    const result = await ddb.getTask(user, req.params.id);
+    const result: Task | undefined = await ddb.getTask(user, req.params.id);
     if (!result) {
       return res.status(404).json('Sorry cant find the task!');
     }
@@ -122,12 +122,8 @@ export const updateTask = async (
     completed,
   }))(req.body);
 
-  // bodyがない場合には空文字を追加する
-  updateTaskInfo.body ? updateTaskInfo.body : (updateTaskInfo.body = '');
-
-  // タイムスタンプを付与
-  const currentTime: string = new Date().toISOString();
-  updateTaskInfo.updatedAt = currentTime;
+  updateTaskInfo.body = updateTaskInfo.body || '';
+  updateTaskInfo.updatedAt = new Date().toISOString();
 
   try {
     const result: Task = await ddb.updateTask(
