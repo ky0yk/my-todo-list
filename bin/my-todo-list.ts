@@ -9,8 +9,17 @@ const resourceName = new ResourceName('MyTodoList', systemEnv);
 
 const app = new cdk.App();
 new MyTodoListStack(app, resourceName, {
-  callbackUrls: ['http://localhost:3200/oauth2-redirect.html'],
-  logoutUrls: ['http://localhost:3200/oauth2-redirect.html'],
-  frontendUrls: ['http://localhost:3200'],
+  callbackUrls: [
+    // 'http://localhost:3200/oauth2-redirect.html',
+    'https://feature-amplify-console-swagger.d68k7gpg5sbd1.amplifyapp.com/oauth2-redirect.html',
+  ],
+  logoutUrls: [
+    // 'http://localhost:3200/oauth2-redirect.html',
+    'https://feature-amplify-console-swagger.d68k7gpg5sbd1.amplifyapp.com/oauth2-redirect.html',
+  ],
+  frontendUrls: [
+    // 'http://localhost:3200',
+    'https://feature-amplify-console-swagger.d68k7gpg5sbd1.amplifyapp.com/',
+  ],
   domainPrefix: process.env.DOMAIN_PREFIX!,
 });
