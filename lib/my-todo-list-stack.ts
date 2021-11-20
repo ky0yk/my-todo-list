@@ -96,7 +96,7 @@ export class MyTodoListStack extends cdk.Stack {
       corsPreflight: {
         allowOrigins: props.frontendUrls,
         allowMethods: [apigw.CorsHttpMethod.ANY],
-        allowHeaders: ['authorization'],
+        allowHeaders: ['authorization', 'content-type'],
       },
     });
     httpApi.addRoutes({
