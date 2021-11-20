@@ -30,6 +30,7 @@ export class MyTodoListStack extends cdk.Stack {
       tableName: tableName,
       partitionKey: { name: 'user', type: dynamodb.AttributeType.STRING },
       sortKey: { name: 'id', type: dynamodb.AttributeType.STRING },
+      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
     });
 
     // Lambda
@@ -56,7 +57,7 @@ export class MyTodoListStack extends cdk.Stack {
       autoVerify: { email: true },
       signInAliases: { email: true },
       accountRecovery: cognito.AccountRecovery.EMAIL_ONLY,
-      removalPolicy: cdk.RemovalPolicy.DESTROY,
+      removalPolicy: cdk.RemovalPolicy.SNAPSHOT,
     });
     userPool.addDomain('domain', {
       cognitoDomain: { domainPrefix: props.domainPrefix },
@@ -75,11 +76,11 @@ export class MyTodoListStack extends cdk.Stack {
         flows: { authorizationCodeGrant: true },
       },
       userPoolClientName: userPoolClientName,
-      // generateSecret: false,
-      // authFlows: {
-      //   adminUserPassword: true,
-      // },
-      // preventUserExistenceErrors: true,
+      generateSecret: false,
+      authFlows: {
+        adminUserPassword: true,
+      },
+      preventUserExistenceErrors: true,
     });
 
     // API Gateway
