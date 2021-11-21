@@ -17,7 +17,7 @@ components:
           scopes:
             openid: openid token
   schemas:
-    TaskInfoResponse:
+    Task:
       description: ""
       type: object
       x-examples:
@@ -27,6 +27,7 @@ components:
           tittle: string
           body: string
           priority: 1
+      title: ""
       properties:
         id:
           type: string
@@ -41,11 +42,31 @@ components:
           type: string
         priority:
           type: number
-      required:
-        - id
-        - completed
-        - tittle
-        - priority
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    TaskSummary:
+      title: TaskSummary
+      type: object
+      x-examples:
+        example:
+          id: 497f6eca-6276-4993-bfeb-53cbbbba6f08
+          completed: true
+          tittle: コーヒー豆を買う
+          priority: 1
+      properties:
+        id:
+          type: string
+          format: uuid
+        completed:
+          type: boolean
+        tittle:
+          type: string
+        priority:
+          type: number
 security:
   - OAuth2:
       - openid
@@ -61,28 +82,9 @@ paths:
           content:
             application/json:
               schema:
-                type: array
                 description: ""
                 minItems: 1
                 uniqueItems: true
-                items:
-                  type: object
-                  required:
-                    - id
-                    - completed
-                    - tittle
-                    - priority
-                  properties:
-                    id:
-                      type: string
-                      minLength: 1
-                    completed:
-                      type: boolean
-                    tittle:
-                      type: string
-                      minLength: 1
-                    priority:
-                      type: number
                 x-examples:
                   example-1:
                     - id: e6e9d88a-9b63-468a-aec3-b7a11de27af8
@@ -93,6 +95,9 @@ paths:
                       completed: true
                       tittle: ドーナッツを買う
                       priority: 2
+                type: array
+                items:
+                  $ref: "#/components/schemas/TaskSummary"
               examples:
                 example:
                   value:
@@ -106,7 +111,9 @@ paths:
                       priority: 2
         "401":
           description: Unauthorized
-      description: ユーザーに紐づくタスクの一覧を返します。このレスポンスはタスクのタイトルを含みますが、タスクの内容を含みません。
+        "500":
+          description: Internal Server Error
+      description: ユーザーに紐づくタスクの一覧（サマリ）を返します。
     post:
       summary: タスクを登録
       operationId: postTasks
@@ -138,12 +145,12 @@ paths:
                   body: いつものコーヒーショップでブレンドを100g
                   priority: 1
       responses:
-        "200":
-          description: OK
+        "201":
+          description: Created
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/TaskInfoResponse"
+                $ref: "#/components/schemas/Task"
               examples:
                 example:
                   value:
@@ -159,6 +166,8 @@ paths:
           description: Bad Request
         "401":
           description: Unauthorized
+        "500":
+          description: Internal Server Error
       description: 新規タスクを登録します。レスポンスとして、登録されたタスクの詳細情報を返します。
   "/tasks/{id}":
     parameters:
@@ -175,7 +184,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/TaskInfoResponse"
+                $ref: "#/components/schemas/Task"
               examples:
                 example:
                   value:
@@ -191,8 +200,10 @@ paths:
           description: Unauthorized
         "404":
           description: Not Found
+        "500":
+          description: Internal Server Error
       operationId: getTaskByid
-      description: IDで指定されたタスクの詳細を返します。詳細にはタスクのタイトル、内容がともに含まれます （内容は存在する場合のみ）。他のユーザーのタスクは指定できません。
+      description: IDで指定されたタスクの詳細を返します。詳細にはタスクのタイトル、内容がともに含まれます 。他のユーザーのタスクは指定できません。
     put:
       summary: タスクを指定して更新
       operationId: putTask
@@ -202,7 +213,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/TaskInfoResponse"
+                $ref: "#/components/schemas/Task"
               examples:
                 example:
                   value:
@@ -217,6 +228,8 @@ paths:
           description: Unauthorized
         "404":
           description: Not Found
+        "500":
+          description: Internal Server Error
       requestBody:
         content:
           application/json:
@@ -251,7 +264,293 @@ paths:
                   body: いつものコーヒーショップでブレンドを100g
                   priority: 1
         description: ""
-      description: IDで指定されたタスクを更新します。レスポンスとして、更新されたタスクの詳細情報を返します。他のユーザーのタスクは指定できません。
+      description: IDで指定されたタスクを更新します。レスポンスとして、更新されたタスクの詳細openapi: 3.0.3
+info:
+  title: TODO API overview
+  description: TODOリストを管理するAPI
+  version: 1.0.0
+servers:
+  - url: 'https://84jjepso4j.execute-api.ap-northeast-1.amazonaws.com/'
+components:
+  securitySchemes:
+    OAuth2:
+      type: oauth2
+      description: 'For more information, see https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-userpools-server-contract-reference.html'
+      flows:
+        authorizationCode:
+          authorizationUrl: 'https://my-todo-dev.auth.ap-northeast-1.amazoncognito.com/oauth2/authorize'
+          tokenUrl: 'https://my-todo-dev.auth.ap-northeast-1.amazoncognito.com/oauth2/token'
+          scopes:
+            openid: openid token
+  schemas:
+    Task:
+      description: ''
+      type: object
+      x-examples:
+        example:
+          id: e6e9d88a-9b63-468a-aec3-b7a11de27af8
+          completed: true
+          tittle: string
+          body: string
+          priority: 1
+      title: ''
+      properties:
+        id:
+          type: string
+          minLength: 1
+          format: uuid
+        completed:
+          type: boolean
+        tittle:
+          type: string
+          minLength: 1
+        body:
+          type: string
+        priority:
+          type: number
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    TaskSummary:
+      title: TaskSummary
+      type: object
+      x-examples:
+        example:
+          id: 497f6eca-6276-4993-bfeb-53cbbbba6f08
+          completed: true
+          tittle: コーヒー豆を買う
+          priority: 1
+      properties:
+        id:
+          type: string
+          format: uuid
+        completed:
+          type: boolean
+          format: uuid
+        tittle:
+          type: string
+        priority:
+          type: number
+security:
+  - OAuth2:
+      - openid
+      - token
+paths:
+  /tasks:
+    get:
+      summary: タスクの一覧を取得
+      operationId: getTasks
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                description: ''
+                minItems: 1
+                uniqueItems: true
+                x-examples:
+                  example-1:
+                    - id: e6e9d88a-9b63-468a-aec3-b7a11de27af8
+                      completed: false
+                      tittle: コーヒー豆を買う
+                      priority: 1
+                    - id: 81bcf5bc-7afc-aa06-a860-622222df84f3
+                      completed: true
+                      tittle: ドーナッツを買う
+                      priority: 2
+                type: array
+                items:
+                  $ref: '#/components/schemas/TaskSummary'
+              examples:
+                example:
+                  value:
+                    - id: e6e9d88a-9b63-468a-aec3-b7a11de27af8
+                      completed: false
+                      tittle: コーヒー豆を買う
+                      priority: 1
+                    - id: 81bcf5bc-7afc-aa06-a860-622222df84f3
+                      completed: true
+                      tittle: ドーナッツを買う
+                      priority: 2
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal Server Error
+      description: ユーザーに紐づくタスクの一覧を返します。このレスポンスはタスクの詳細ではなく、タスクのサマリを返します。
+    post:
+      summary: タスクを登録
+      operationId: postTasks
+      requestBody:
+        content:
+          application/json:
+            schema:
+              description: ''
+              type: object
+              x-examples:
+                example-1:
+                  tittle: string
+                  body: string
+              properties:
+                tittle:
+                  type: string
+                  minLength: 1
+                body:
+                  type: string
+                priority:
+                  type: integer
+              required:
+                - tittle
+                - priority
+            examples:
+              example:
+                value:
+                  tittle: コーヒー豆を買う
+                  body: いつものコーヒーショップでブレンドを100g
+                  priority: 1
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+              examples:
+                example:
+                  value:
+                    id: e6e9d88a-9b63-468a-aec3-b7a11de27af8
+                    user: 4daf76eb-fb5a-4bf0-8053-40f5e6bdd8e8
+                    completed: false
+                    tittle: コーヒー豆を買う
+                    body: いつものコーヒーショップでブレンドを100g
+                    priority: 1
+                    createdAt: '2021-11-01T12:31:18.023Z'
+                    updatedAt: '2021-11-01T12:31:18.023Z'
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal Server Error
+      description: 新規タスクを登録します。レスポンスとして、登録されたタスクの詳細情報を返します。
+  '/tasks/{id}':
+    parameters:
+      - schema:
+          type: string
+        name: id
+        in: path
+        required: true
+    get:
+      summary: タスクを指定して取得
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+              examples:
+                example:
+                  value:
+                    id: e6e9d88a-9b63-468a-aec3-b7a11de27af8
+                    completed: false
+                    tittle: コーヒー豆を買う
+                    body: いつものコーヒーショップでブレンドを100g
+                    priority: 1
+                    user: 4daf76eb-fb5a-4bf0-8053-40f5e6bdd8e8
+                    updatedAt: '2021-11-02T12:42:33.087Z'
+                    createdAt: '2021-11-02T12:42:33.087Z'
+        '401':
+          description: Unauthorized
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+      operationId: getTaskByid
+      description: IDで指定されたタスクの詳細を返します。詳細にはタスクのタイトル、内容がともに含まれます （内容は存在する場合のみ）。他のユーザーのタスクは指定できません。
+    put:
+      summary: タスクを指定して更新
+      operationId: putTask
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+              examples:
+                example:
+                  value:
+                    id: e6e9d88a-9b63-468a-aec3-b7a11de27af8
+                    completed: true
+                    tittle: コーヒー豆を買う
+                    body: いつものコーヒーショップでブレンドを100g
+                    priority: 1
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+      requestBody:
+        content:
+          application/json:
+            schema:
+              description: ''
+              type: object
+              x-examples:
+                example-1:
+                  id: e6e9d88a-9b63-468a-aec3-b7a11de27af8
+                  completed: true
+                  tittle: string
+                  body: string
+              properties:
+                completed:
+                  type: boolean
+                tittle:
+                  type: string
+                  minLength: 1
+                body:
+                  type: string
+                priority:
+                  type: integer
+              required:
+                - completed
+                - tittle
+                - priority
+            examples:
+              example:
+                value:
+                  completed: true
+                  tittle: コーヒー豆を買う
+                  body: いつものコーヒーショップでブレンドを100g
+                  priority: 1
+        description: ''
+      description: IDで指定されたタスクを更新します。レスポンスとして、更新されたタスクの詳細情報を返します。存在しないタスクは指定できません。また他のユーザーのタスクも指定できません。
+    delete:
+      summary: タスクを指定して削除
+      operationId: deleteTask
+      responses:
+        '204':
+          description: No Content
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+        '401':
+          description: Unauthorized
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+      description: 'IDで指定されたタスクを削除します。レスポンスとして空のオブジェクト`{}`を受け取ります。他のユーザーのタスクは指定できません。'
+を返します。存在しないタスクは指定できません。また他のユーザーのタスクも指定できません。
     delete:
       summary: タスクを指定して削除
       operationId: deleteTask
@@ -267,4 +566,6 @@ paths:
           description: Unauthorized
         "404":
           description: Not Found
+        "500":
+          description: Internal Server Error
       description: "IDで指定されたタスクを削除します。レスポンスとして空のオブジェクト`{}`を受け取ります。他のユーザーのタスクは指定できません。"
