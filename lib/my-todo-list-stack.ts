@@ -87,7 +87,7 @@ export class MyTodoListStack extends cdk.Stack {
     const authorizer = new HttpUserPoolAuthorizer({
       authorizerName: 'cognito-authorizer',
       userPool: userPool,
-      userPoolClient: userPoolClient,
+      userPoolClients: [userPoolClient],
     });
 
     const httpApiName = resourceName.apiName('todo');
