@@ -28,33 +28,34 @@ jobs:
 
       - name: Setup environment variables
         run: |
+          echo ${{github.base_ref}}
           echo AMPLIFY_URL=${{secrets.AMPLIFY_URL}} >> $GITHUB_ENV
 
-      - name: Setup Node
-        uses: actions/setup-node@v2
-        with:
-          node-version: "14.x"
+#       - name: Setup Node
+#         uses: actions/setup-node@v2
+#         with:
+#           node-version: "14.x"
 
-      - name: Setup dependencies
-        run: npm ci
+#       - name: Setup dependencies
+#         run: npm ci
 
-      - name: Build
-        run: npm run build
+#       - name: Build
+#         run: npm run build
 
-      - name: Unit tests
-        if: contains(github.event_name, 'pull_request')
-        run: npm run test
+#       - name: Unit tests
+#         if: contains(github.event_name, 'pull_request')
+#         run: npm run test
 
-      - name: configure aws credentials
-        uses: aws-actions/configure-aws-credentials@master
-        with:
-          role-to-assume: ${{secrets.ROLE_ARN}}
-          aws-region: ${{env.AWS_REGION}}
+#       - name: configure aws credentials
+#         uses: aws-actions/configure-aws-credentials@master
+#         with:
+#           role-to-assume: ${{secrets.ROLE_ARN}}
+#           aws-region: ${{env.AWS_REGION}}
 
-      - name: CDK Diff Check
-        if: contains(github.event_name, 'pull_request')
-        run: npm run cdk diff
+#       - name: CDK Diff Check
+#         if: contains(github.event_name, 'pull_request')
+#         run: npm run cdk diff
 
-      - name: CDK Deploy
-        if: contains(github.event_name, 'push')
-        run: npm run deploy
+#       - name: CDK Deploy
+#         if: contains(github.event_name, 'push')
+#         run: npm run deploy
