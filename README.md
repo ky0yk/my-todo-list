@@ -4,10 +4,13 @@
     - [利用元アプリのイメージ](#利用元アプリのイメージ)
   - [API仕様](#api仕様)
   - [アーキテクチャ](#アーキテクチャ)
+    - [Swagger UI](#swagger-ui)
   - [DynamoDB概要](#dynamodb概要)
     - [Primary key](#primary-key)
     - [Attributes](#attributes)
-  - [デプロイ方法](#デプロイ方法)
+  - [デプロイ](#デプロイ)
+    - [CI/CDパイプライン](#cicdパイプライン)
+    - [手動デプロイ](#手動デプロイ)
 
 ## 概要
 
@@ -24,11 +27,15 @@
 
 ### 利用元アプリのイメージ
 
-![](https://user-images.githubusercontent.com/40429527/142754360-9dca55a0-2a0c-4073-9b8f-8e980daba923.png)
+| タスク一覧 | タスク詳細 |
+| :---: | :---: |
+| ![](https://user-images.githubusercontent.com/40429527/142754360-9dca55a0-2a0c-4073-9b8f-8e980daba923.png) | ![](https://user-images.githubusercontent.com/40429527/142754359-79179b65-7945-4d49-b8c9-0f74ec346716.png) |
 
-![](https://user-images.githubusercontent.com/40429527/142754359-79179b65-7945-4d49-b8c9-0f74ec346716.png)
+
 
 ## API仕様
+
+以下のSwagger UIを参照。認証および各APIの検証も可能。
 
 [https://main.d68k7gpg5sbd1.amplifyapp.com/](https://main.d68k7gpg5sbd1.amplifyapp.com/)
 
@@ -39,6 +46,12 @@
 - CDKを利用し、インフラ〜アプリまですべてTypeScriptで構築
 
 ![](https://user-images.githubusercontent.com/40429527/137476062-90d07e80-7ae5-4689-8cb9-44984267c57b.png)
+
+### Swagger UI
+
+- Amplify Consoleにてホスト
+  - 擬似的なフロントエンドとして、CORSも設定済み
+- `main`ブランチの`/docs`の更新時に自動デプロイされる
 
 ## DynamoDB概要
 
@@ -58,10 +71,23 @@
 
 ![](https://user-images.githubusercontent.com/40429527/142754304-92cf660c-2994-46cd-ab0c-6b467332cecc.png)
 
-## デプロイ方法
+## デプロイ
+
+### CI/CDパイプライン
+
+- GitHub Actionsを利用したCI/CDパイプラインを構築済み
+- 環境は本番、ステージング、開発の3つ
+- ブランチ戦略はシンプルなGitlab flowを採用
+  - `main`ブランチがステージング環境、`release`が本番環境と接続されている
+  - 開発環境は手動デプロイを想定
+- Pull Requestをトリガーに、自動テストと`cdk diff`を実行
+- Mergeをトリガーに`cdk deploy`を実行
+
+### 手動デプロイ
 
 ```
 git clone https://github.com/ky0yk/my-todo-list.git
+cd my-todo-list
 npm install
 cdk deploy --all
 ```
