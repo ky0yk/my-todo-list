@@ -16,7 +16,7 @@ const app = new cdk.App();
 // 環境名ごとにpropsの内容を変更
 const amplifyUrl = process.env.AMPLIFY_URL ? process.env.AMPLIFY_URL : '';
 const frontendUrls = [amplifyUrl];
-if (systemEnv === 'dev') {
+if (systemEnv === 'dev' || systemEnv === 'stg') {
   frontendUrls.push('http://localhost:3200');
 }
 const callbackAndLogoutUrls = frontendUrls.map(
