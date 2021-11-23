@@ -18,18 +18,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Check Release Branch
-        if: ${{ github.ref == 'refs/heads/release' }}
+      - name: Check release branch
+        if: ${{ github.base_ref == 'release' }}
         run: echo "SYSTEM_ENV=prd" >> $GITHUB_ENV
 
-      - name: Check Main Branch
-        if: ${{ github.ref == 'refs/heads/main' }}
+      - name: Check main branch
+        if: ${{ github.base_ref == 'main' }}
         run: echo "SYSTEM_ENV=stg" >> $GITHUB_ENV
 
       - name: Setup environment variables
         run: |
-          echo DOMAIN_PREFIX=${{'my-todo-'}}${{env.SYSTEM_ENV}} >> $GITHUB_ENV
-          echo TABLE_NAME=${{'MyTodoList-'}}${{env.SYSTEM_ENV}}${{'-todo-table'}} >> $GITHUB_ENV
+          echo AMPLIFY_URL=${{secrets.AMPLIFY_URL}} >> $GITHUB_ENV
 
       - name: Setup Node
         uses: actions/setup-node@v2
