@@ -35,7 +35,7 @@
 
 ## API仕様
 
-以下のSwagger UIを参照。認証と各APIの動作確認も可能（ステージング環境）。
+以下のSwagger UIを参照。認証と各APIの動作確認も可能（ステージング環境を利用）。
 
 [https://main.d68k7gpg5sbd1.amplifyapp.com/](https://main.d68k7gpg5sbd1.amplifyapp.com/)
 
@@ -87,6 +87,7 @@
 ### 手動デプロイ
 
 ```
+export SYSTEM_ENV=dev
 git clone https://github.com/ky0yk/my-todo-list.git
 cd my-todo-list
 npm install
