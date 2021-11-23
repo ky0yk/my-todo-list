@@ -4,7 +4,7 @@ import * as infra from '../../../src/infrastructures/dynamodb/tasks-table';
 import { v4 as uuidv4 } from 'uuid';
 import { Task, TaskSummary } from '../../../src/utils/types';
 
-const tableName = process.env.TABLE_NAME;
+const tableName = 'MyTodoList-dev-todo-table';
 const ddbMock = mockClient(infra.ddbDocClient);
 
 /**

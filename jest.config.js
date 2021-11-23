@@ -6,3 +6,5 @@ module.exports = {
     '^.+\\.tsx?$': 'ts-jest'
   }
 };
+
+process.env = Object.assign(process.env, { TABLE_NAME: 'MyTodoList-dev-todo-table' });
