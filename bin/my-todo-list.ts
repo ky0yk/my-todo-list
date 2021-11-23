@@ -1,25 +1,32 @@
-#!/usr/bin/env node
 import 'source-map-support/register';
 import * as cdk from '@aws-cdk/core';
 import { MyTodoListStack } from '../lib/my-todo-list-stack';
 import { ResourceName } from '../lib/resourceName';
 
-const systemEnv = process.env.SYSTEM_ENV ? process.env.SYSTEM_ENV : 'dev';
+// 環境名が指定されているかのチェック
+if (!process.env.SYSTEM_ENV) {
+  throw new Error('環境変数で環境名を指定してください。');
+}
+
+const systemEnv = process.env.SYSTEM_ENV!;
 const resourceName = new ResourceName('MyTodoList', systemEnv);
 
 const app = new cdk.App();
-new MyTodoListStack(app, resourceName, {
-  callbackUrls: [
-    'http://localhost:3200/oauth2-redirect.html',
-    'https://main.d68k7gpg5sbd1.amplifyapp.com/oauth2-redirect.html',
-  ],
-  logoutUrls: [
-    'http://localhost:3200/oauth2-redirect.html',
-    'https://main.d68k7gpg5sbd1.amplifyapp.com/oauth2-redirect.html',
-  ],
-  frontendUrls: [
-    'http://localhost:3200',
-    'https://main.d68k7gpg5sbd1.amplifyapp.com',
-  ],
-  domainPrefix: process.env.DOMAIN_PREFIX!,
-});
+
+// 環境名ごとにpropsの内容を変更
+const amplifyUrl = process.env.AMPLIFY_URL ? process.env.AMPLIFY_URL : '';
+const frontendUrls = [amplifyUrl];
+if (systemEnv === 'dev') {
+  frontendUrls.push('http://localhost:3200');
+}
+const callbackAndLogoutUrls = frontendUrls.map(
+  (url) => `${url}/oauth2-redirect.html`
+);
+const props = {
+  frontendUrls: frontendUrls,
+  callbackUrls: callbackAndLogoutUrls,
+  logoutUrls: callbackAndLogoutUrls,
+  domainPrefix: `my-todo-${systemEnv}`,
+};
+
+new MyTodoListStack(app, resourceName, props);
