@@ -2,10 +2,12 @@ import * as ddbLib from '@aws-sdk/lib-dynamodb';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { Task, TaskSummary, UpdateTaskInfo } from '../../utils/types';
 
-const tableName: string | undefined = process.env.TABLE_NAME;
-if (!tableName) {
+// テーブル名のチェック
+if (!process.env.TABLE_NAME) {
   throw new Error('テーブル名を取得できませんでした。');
 }
+const tableName = process.env.TABLE_NAME!;
+
 export const ddbClient = new DynamoDBClient({ region: 'ap-northeast-1' });
 export const ddbDocClient = ddbLib.DynamoDBDocumentClient.from(ddbClient);
 

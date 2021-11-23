@@ -15,7 +15,7 @@ const stack = new todoApi.MyTodoListStack(app, resourceName, {
   callbackUrls: ['http://localhost:3200/oauth2-redirect.html'],
   logoutUrls: ['http://localhost:3200/oauth2-redirect.html'],
   frontendUrls: ['http://localhost:3200'],
-  domainPrefix: process.env.DOMAIN_PREFIX!,
+  domainPrefix: 'my-todo-dev',
 });
 
 test('API Gateway', () => {
