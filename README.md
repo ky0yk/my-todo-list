@@ -35,7 +35,7 @@
 
 ## API仕様
 
-以下のSwagger UIを参照。認証および各APIの検証も可能。
+以下のSwagger UIを参照。認証と各APIの動作確認も可能（ステージング環境）。
 
 [https://main.d68k7gpg5sbd1.amplifyapp.com/](https://main.d68k7gpg5sbd1.amplifyapp.com/)
 
@@ -80,8 +80,9 @@
 - ブランチ戦略はシンプルなGitlab flowを採用
   - `main`ブランチがステージング環境、`release`が本番環境と接続されている
   - 開発環境は手動デプロイを想定
-- Pull Requestをトリガーに、自動テストと`cdk diff`を実行
-- Mergeをトリガーに`cdk deploy`を実行
+- `main`および`release`ブランチに対して以下をトリガーにパイプラインが発火
+  - `Pull Request`で自動テストと`cdk diff`を実行
+  - `Merge`で`cdk deploy`を実行
 
 ### 手動デプロイ
 
@@ -89,5 +90,6 @@
 git clone https://github.com/ky0yk/my-todo-list.git
 cd my-todo-list
 npm install
-cdk deploy --all
+aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws
+cdk deploy
 ```
